@@ -170,13 +170,22 @@ h2 {
 .li__text {
   margin-left: 10px;
   word-break: break-all;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  width: 100%;
 }
 
 .li__delete {
-  position: absolute;
   top: auto;
   right: 10px;
+  align-items: center;
   visibility: hidden;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 .false {
