@@ -184,6 +184,7 @@ h2 {
   background-size: 100% 100%;
   min-height: 30px;
   min-width: 30px;
+  cursor: pointer;
 }
 
 .true {
@@ -191,6 +192,7 @@ h2 {
   min-height: 30px;
   min-width: 30px;
   background-size: 100% 100%;
+  cursor: pointer;
 }
 
 .footer {
@@ -221,6 +223,12 @@ h2 {
   visibility: hidden;
 }
 
+@media screen and (min-width: 320px) and (max-width: 1024px) {
+  .ul__li .li__delete {
+    visibility: visible;
+  }
+}
+
 @media screen and (min-width: 320px) and (max-width: 900px) {
   .wrapper {
     width: 100%;
@@ -232,6 +240,9 @@ h2 {
 }
 
 @media screen and (min-width: 320px) and (max-width: 590px) {
+  .wrapper {
+    margin: 0px auto;
+  }
   .wrapper .input-todo input {
     box-sizing: border-box;
     width: 100%;
@@ -239,7 +250,7 @@ h2 {
     padding: 0px;
     font-size: 20px;
     margin-bottom: 20px;
-    padding-left: 40px;
+    padding-left: 50px;
   }
 
   .wrapper .input-todo .arrow {
