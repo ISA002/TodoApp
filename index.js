@@ -3,13 +3,14 @@ const input = document.getElementById("input-todo__input");
 const todoList = document.getElementById("todo-list__ul");
 const content = document.getElementById("todo-list__empty");
 const todoCounter = document.getElementById("todo-counter");
+const toggleAll = document.getElementById("arrow");
 
 // Начальное стостояние
 let initialState = {
   todosArray: (todosArray = localStorage.getItem("todoAppList")
     ? JSON.parse(localStorage.getItem("todoAppList"))
     : []),
-  activeTodos: [],
+  activeTodos: 0,
   filterController: "all",
 };
 localStorage.setItem("todoAppList", JSON.stringify(initialState.todosArray));
@@ -18,6 +19,7 @@ localStorage.setItem("todoAppList", JSON.stringify(initialState.todosArray));
 const rerender = (value) => {
   todoList.innerHTML = "";
   if (value.length == 0) {
+    content.innerHTML = "";
     const el = document.createElement("div");
     el.innerHTML = "<div>...</div>";
     el.classList = "todo-list__empty";
@@ -26,8 +28,8 @@ const rerender = (value) => {
     content.innerHTML = "";
     renderFilter(value, state.filterController);
   }
-  initialState.activeTodos = value.filter((el) => !el.completed);
-  todoCounter.innerHTML = state.activeTodos.length;
+  initialState.activeTodos = value.filter((el) => !el.completed).length;
+  todoCounter.innerHTML = state.activeTodos;
 };
 
 // Наблюдаемое сотояние приложения
@@ -40,19 +42,11 @@ const state = new Proxy(initialState, {
   },
 });
 
-// удаление выполненных тудух
-const clearTodos = () => {
-  if (state.todosArray.length !== 0) {
-    state.todosArray = state.todosArray.filter((el) => !el.completed);
-  }
-};
-
 // создание тудухи
 const createTodo = (todo) => {
   const newTodo = document.createElement("li");
-  newTodo.innerHTML = `<input class="toggle" type="checkbox" ${
-    todo.completed && "checked"
-  } />
+  newTodo.innerHTML = `<div class="${todo.completed}">
+    </div>
     <div class="li__text">
         ${todo.title}
     </div>
@@ -66,9 +60,9 @@ const createTodo = (todo) => {
   newTodo.addEventListener(
     "click",
     customDblClick((event) => {
-      event.target.classList.add("editing");
-      event.target.lastChild.focus();
-      event.target.lastChild.value = todo.title;
+      event.currentTarget.classList.add("editing");
+      event.currentTarget.lastChild.focus();
+      event.currentTarget.lastChild.value = todo.title;
     })
   );
 
@@ -105,11 +99,26 @@ const stopEditing = (event) => {
   const index = state.todosArray.findIndex((el) => el.id === itemId);
   if (index !== -1) {
     const arrCopy = [...state.todosArray];
-    arrCopy[index].title = event.target.value;
+    event.target.value === ""
+      ? arrCopy.splice(index, 1)
+      : (arrCopy[index].title = event.target.value);
     state.todosArray = [...arrCopy];
   }
   event.target.parentNode.classList.remove("editing");
 };
+
+// обработчик toggleAll
+toggleAll.addEventListener("click", (event) => {
+  event.stopPropagation();
+  state.todosArray = state.todosArray.map((el) => {
+    if (state.activeTodos > 0) {
+      el.completed = !el.completed ? !el.completed : el.completed;
+    } else {
+      el.completed = !el.completed;
+    }
+    return el;
+  });
+});
 
 // удаление тудухи
 const deleteTodo = (event) => {
@@ -138,8 +147,7 @@ input.addEventListener(
   true
 );
 
-input.addEventListener(
-  "blur", (event) => {
+input.addEventListener("blur", (event) => {
   if (event.target.value !== "") {
     state.todosArray = [
       ...state.todosArray,
@@ -154,31 +162,24 @@ input.addEventListener(
 });
 
 // обработка нажатия фильтров
-const showAll = () => {
-  state.filterController = "all";
+const changeFilters = (type) => {
+  state.filterController = type;
 };
-const showActive = () => {
-  state.filterController = "active";
-};
-const showCompleted = () => {
-  state.filterController = "completed";
+
+// удаление выполненных тудух
+const clearTodos = () => {
+  state.todosArray = state.todosArray.filter((el) => !el.completed);
 };
 
 // util функции
+const filterProperties = {
+  all: (value) => value,
+  active: (value) => value.filter((el) => !el.completed),
+  completed: (value) => value.filter((el) => el.completed),
+};
+
 const renderFilter = (value, option) => {
-  switch (option) {
-    case "all":
-      value.map((el) => createTodo(el));
-      break;
-    case "active":
-      value.filter((el) => !el.completed).map((el) => createTodo(el));
-      break;
-    case "completed":
-      value.filter((el) => el.completed).map((el) => createTodo(el));
-      break;
-    default:
-      value.map((el) => createTodo(el));
-  }
+  filterProperties[option](value).forEach((el) => createTodo(el));
 };
 
 const customDblClick = (handler, delay = 250) => {

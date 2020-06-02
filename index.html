@@ -13,10 +13,16 @@
         <div class="header">
           <div class="header__wrapper">
             <nav class="header__nav">
-              <a class="nav__a" onClick="showAll()"href="#">All</a>
-              <a class="nav__a" onClick="showActive()"href="#">Active</a>
-              <a class="nav__a" onClick="showCompleted()"href="#">Completed</a>
-              <a class="nav__a" onClick="clearTodos()" href="#">Clear completed</a>
+              <a class="nav__a" onClick="changeFilters('all')" href="#">All</a>
+              <a class="nav__a" onClick="changeFilters('active')" href="#"
+                >Active</a
+              >
+              <a class="nav__a" onClick="changeFilters('completed')" href="#"
+                >Completed</a
+              >
+              <a class="nav__a" onClick="clearTodos()" href="#"
+                >Clear completed</a
+              >
             </nav>
           </div>
         </div>
@@ -29,11 +35,14 @@
               <h2><span id="todo-counter">0</span> items left</h2>
             </div>
             <div class="input-todo">
-              <input
-                id="input-todo__input"
-                type="text"
-                placeholder="Input your todos"
-              />
+              <div class="input-todo__wrapper">
+                <input
+                  id="input-todo__input"
+                  type="text"
+                  placeholder="Input your todos"
+                />
+                <div id="arrow" class="arrow"></div>
+              </div>
             </div>
           </div>
           <div class="todo-list">
