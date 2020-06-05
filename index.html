@@ -13,16 +13,35 @@
         <div class="header">
           <div class="header__wrapper">
             <nav class="header__nav">
-              <a class="nav__a" onClick="changeFilters('all')" href="#">All</a>
-              <a class="nav__a" onClick="changeFilters('active')" href="#"
-                >Active</a
-              >
-              <a class="nav__a" onClick="changeFilters('completed')" href="#"
-                >Completed</a
-              >
-              <a class="nav__a" onClick="clearTodos()" href="#"
-                >Clear completed</a
-              >
+              <ul class="nav__ul">
+                <li class="nav__li">
+                  <a
+                    class="nav__a active"
+                    id="all"
+                    onClick="changeFilters('all')"
+                    href="#"
+                    >All</a
+                  >
+                </li>
+                <li class="nav__li">
+                  <a
+                    class="nav__a"
+                    id="active"
+                    onClick="changeFilters('active')"
+                    href="#"
+                    >Active</a
+                  >
+                </li>
+                <li class="nav__li">
+                  <a
+                    class="nav__a"
+                    id="completed"
+                    onClick="changeFilters('completed')"
+                    href="#"
+                    >Completed</a
+                  >
+                </li>
+              </ul>
             </nav>
           </div>
         </div>
@@ -50,7 +69,14 @@
             <ul id="todo-list__ul" class="todo-list__ul"></ul>
           </div>
         </div>
-        <div class="footer">Created by @Immortal</div>
+        <div class="footer">
+          <div class="footer__text">Created by @Immortal</div>
+          <div class="header__clear">
+            <a class="clear__a" onClick="clearTodos()" href="#"
+              >Clear completed</a
+            >
+          </div>
+        </div>
       </div>
     </div>
     <script src="index.js"></script>

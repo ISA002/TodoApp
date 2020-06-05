@@ -164,6 +164,7 @@ input.addEventListener("blur", (event) => {
 // обработка нажатия фильтров
 const changeFilters = (type) => {
   state.filterController = type;
+  changeActive(type);
 };
 
 // удаление выполненных тудух
@@ -178,8 +179,18 @@ const filterProperties = {
   completed: (value) => value.filter((el) => el.completed),
 };
 
+const settingArray = ["all", "active", "completed"];
+
 const renderFilter = (value, option) => {
   filterProperties[option](value).forEach((el) => createTodo(el));
+};
+
+const changeActive = (type) => {
+  settingArray.forEach((el) => {
+    const item = document.getElementById(el);
+    item.classList = "nav__a";
+    if (el === type) item.classList.add("active");
+  });
 };
 
 const customDblClick = (handler, delay = 250) => {
