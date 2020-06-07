@@ -257,8 +257,8 @@ h2 {
 .editing input[type="text"] {
   display: block;
   width: 100%;
-  min-height: 35px;
-  font-size: 30px;
+  min-height: 30px;
+  font-size: 25px;
   font-family: "Merriweather-Regular";
   background: #343a40;
   color: #9198a1;
@@ -292,6 +292,7 @@ h2 {
 @media screen and (min-width: 320px) and (max-width: 590px) {
   .wrapper {
     margin: 0px auto;
+    border-radius: 0 0 10px 10px;
   }
   .wrapper .input-todo input {
     box-sizing: border-box;
@@ -332,7 +333,7 @@ h2 {
   }
 
   .nav__a {
-    font-size: small;
+    font-size: 17px;
   }
 
   h1 {
