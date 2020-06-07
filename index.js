@@ -53,7 +53,7 @@ const createTodo = (todo) => {
     <div id="li__delete" class="li__delete" onClick="deleteTodo(event);">
         <img src="deleteIcon.png"/>
     </div>
-    <input onblur="stopEditing(event)" type="text"/>`;
+    <input onblur="stopEditing(event)" type="text" pattern="[0-9A-Za-z]"/>`;
   newTodo.classList = "ul__li";
   newTodo.id = todo.id;
 
@@ -78,7 +78,11 @@ const createTodo = (todo) => {
   });
 
   newTodo.lastChild.addEventListener("keydown", (event) => {
-    if (event.keyCode === 13 && event.target.value !== "") {
+    if (
+      event.keyCode === 13 &&
+      event.target.value !== "" &&
+      !event.target.value.match(/[<>]/)
+    ) {
       const itemId = event.target.parentNode.getAttribute("id");
       const index = state.todosArray.findIndex((el) => el.id === itemId);
       if (index !== -1) {
@@ -99,9 +103,14 @@ const stopEditing = (event) => {
   const index = state.todosArray.findIndex((el) => el.id === itemId);
   if (index !== -1) {
     const arrCopy = [...state.todosArray];
-    event.target.value === ""
-      ? arrCopy.splice(index, 1)
-      : (arrCopy[index].title = event.target.value);
+    console.log(event.target.value === "" && event.target.value.match(/[<>]/));
+    if (!event.target.value) {
+      arrCopy.splice(index, 1);
+    } else {
+      !event.target.value.match(/[<>]/)
+        ? (arrCopy[index].title = event.target.value)
+        : arrCopy.splice(index, 1);
+    }
     state.todosArray = [...arrCopy];
   }
   event.target.parentNode.classList.remove("editing");
@@ -132,7 +141,11 @@ const deleteTodo = (event) => {
 input.addEventListener(
   "keydown",
   (event) => {
-    if (event.keyCode === 13 && input.value != "") {
+    if (
+      event.keyCode === 13 &&
+      input.value != "" &&
+      !input.value.match(/[<>]/)
+    ) {
       state.todosArray = [
         ...state.todosArray,
         {
@@ -148,7 +161,7 @@ input.addEventListener(
 );
 
 input.addEventListener("blur", (event) => {
-  if (event.target.value !== "") {
+  if (event.target.value !== "" && !input.value.match(/[<>]/)) {
     state.todosArray = [
       ...state.todosArray,
       {
