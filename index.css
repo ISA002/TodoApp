@@ -141,7 +141,7 @@ h2 {
   position: relative;
 }
 
-.todo-list__empty {
+.empty {
   height: 50px;
   color: #e1eaf2d3;
   font-family: "Merriweather-Regular";

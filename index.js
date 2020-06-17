@@ -1,9 +1,10 @@
 // элементы дом дерева
 const input = document.getElementById("input-todo__input");
-const todoList = document.getElementById("todo-list__ul");
+const todoList = document.getElementById("todo-list");
 const content = document.getElementById("todo-list__empty");
 const todoCounter = document.getElementById("todo-counter");
 const toggleAll = document.getElementById("arrow");
+const hiddenInput = document.getElementById("hidden-input");
 
 // Начальное стостояние
 let initialState = {
@@ -18,18 +19,18 @@ localStorage.setItem("todoAppList", JSON.stringify(initialState.todosArray));
 // Ререндер дом дерева
 const rerender = (value) => {
   todoList.innerHTML = "";
+  content.innerHTML = "";
   if (value.length == 0) {
-    content.innerHTML = "";
     const el = document.createElement("div");
     el.innerHTML = "<div>...</div>";
-    el.classList = "todo-list__empty";
+    el.classList = "empty";
     content.appendChild(el);
   } else {
-    content.innerHTML = "";
     renderFilter(value, state.filterController);
   }
   initialState.activeTodos = value.filter((el) => !el.completed).length;
-  todoCounter.innerHTML = state.activeTodos;
+  todoCounter.innerHTML =
+    state.activeTodos + " " + declOfNum(state.activeTodos);
 };
 
 // Наблюдаемое сотояние приложения
@@ -42,20 +43,20 @@ const state = new Proxy(initialState, {
   },
 });
 
-// создание тудухи
-const createTodo = (todo) => {
+// рендер тудухи
+const renderTodo = (todo) => {
   const newTodo = document.createElement("li");
-  newTodo.innerHTML = `<div class="${todo.completed}">
+  newTodo.classList = "ul__li";
+  newTodo.id = todo.id;
+  newTodo.innerHTML = `<div id="li__toggle" class="li__checkbox ${todo.completed}">
     </div>
     <div class="li__text">
         ${todo.title}
     </div>
-    <div id="li__delete" class="li__delete" onClick="deleteTodo(event);">
+    <div id="li__delete" class="li__delete" data-id="${todo.id}" onClick="deleteTodo(event);">
         <img src="deleteIcon.png"/>
     </div>
-    <input onblur="stopEditing(event)" type="text" pattern="[0-9A-Za-z]"/>`;
-  newTodo.classList = "ul__li";
-  newTodo.id = todo.id;
+    <input id="hidden-input" onblur="stopEditing(event)" type="text" pattern="[0-9A-Za-z]"/>`;
 
   newTodo.addEventListener(
     "click",
@@ -66,7 +67,7 @@ const createTodo = (todo) => {
     })
   );
 
-  newTodo.children[0].addEventListener("click", (event) => {
+  newTodo.querySelector("#li__toggle").addEventListener("click", (event) => {
     event.stopPropagation();
     const itemId = event.target.parentNode.getAttribute("id");
     const index = state.todosArray.findIndex((el) => el.id === itemId);
@@ -77,22 +78,20 @@ const createTodo = (todo) => {
     }
   });
 
-  newTodo.lastChild.addEventListener("keydown", (event) => {
-    if (
-      event.keyCode === 13 &&
-      event.target.value !== "" &&
-      !event.target.value.match(/[<>]/)
-    ) {
-      const itemId = event.target.parentNode.getAttribute("id");
-      const index = state.todosArray.findIndex((el) => el.id === itemId);
-      if (index !== -1) {
-        const arrCopy = [...state.todosArray];
-        arrCopy[index].title = event.target.value;
-        state.todosArray = [...arrCopy];
+  newTodo
+    .querySelector("#hidden-input")
+    .addEventListener("keydown", (event) => {
+      if (isInputValid(event)) {
+        const itemId = event.target.parentNode.getAttribute("id");
+        const index = state.todosArray.findIndex((el) => el.id === itemId);
+        if (index !== -1) {
+          const arrCopy = [...state.todosArray];
+          arrCopy[index].title = event.target.value;
+          state.todosArray = [...arrCopy];
+        }
+        event.target.parentNode.classList.remove("editing");
       }
-      event.target.parentNode.classList.remove("editing");
-    }
-  });
+    });
 
   todoList.appendChild(newTodo);
 };
@@ -103,7 +102,6 @@ const stopEditing = (event) => {
   const index = state.todosArray.findIndex((el) => el.id === itemId);
   if (index !== -1) {
     const arrCopy = [...state.todosArray];
-    console.log(event.target.value === "" && event.target.value.match(/[<>]/));
     if (!event.target.value) {
       arrCopy.splice(index, 1);
     } else {
@@ -132,29 +130,16 @@ toggleAll.addEventListener("click", (event) => {
 // удаление тудухи
 const deleteTodo = (event) => {
   event.stopPropagation();
-  state.todosArray = state.todosArray.filter(
-    (el) => el.id !== event.target.parentNode.parentNode.id
-  );
+  const todoId = event.target.parentNode.getAttribute("data-id");
+  state.todosArray = state.todosArray.filter((el) => el.id !== todoId);
 };
 
 // обработка нажатиия на главный инпут
 input.addEventListener(
   "keydown",
   (event) => {
-    if (
-      event.keyCode === 13 &&
-      input.value != "" &&
-      !input.value.match(/[<>]/)
-    ) {
-      state.todosArray = [
-        ...state.todosArray,
-        {
-          id: Date.now().toString(),
-          title: input.value,
-          completed: false,
-        },
-      ];
-      input.value = "";
+    if (isInputValid(event)) {
+      createTodo(input);
     }
   },
   true
@@ -162,15 +147,7 @@ input.addEventListener(
 
 input.addEventListener("blur", (event) => {
   if (event.target.value !== "" && !input.value.match(/[<>]/)) {
-    state.todosArray = [
-      ...state.todosArray,
-      {
-        id: Date.now().toString(),
-        title: input.value,
-        completed: false,
-      },
-    ];
-    input.value = "";
+    createTodo(input);
   }
 });
 
@@ -185,6 +162,19 @@ const clearTodos = () => {
   state.todosArray = state.todosArray.filter((el) => !el.completed);
 };
 
+// создание тудухи
+const createTodo = (target) => {
+  state.todosArray = [
+    ...state.todosArray,
+    {
+      id: Date.now().toString(),
+      title: target.value,
+      completed: false,
+    },
+  ];
+  target.value = "";
+};
+
 // util функции
 const filterProperties = {
   all: (value) => value,
@@ -195,7 +185,7 @@ const filterProperties = {
 const settingArray = ["all", "active", "completed"];
 
 const renderFilter = (value, option) => {
-  filterProperties[option](value).forEach((el) => createTodo(el));
+  filterProperties[option](value).forEach((el) => renderTodo(el));
 };
 
 const changeActive = (type) => {
@@ -225,6 +215,19 @@ const customDblClick = (handler, delay = 250) => {
       handler(event);
     }
   };
+};
+
+const declOfNum = (number) => {
+  titles = ["item", "items"];
+  return titles[number === 1 ? 0 : 1];
+};
+
+const isInputValid = (event) => {
+  return (
+    event.keyCode === 13 &&
+    event.target.value != "" &&
+    !event.target.value.match(/[<>]/)
+  );
 };
 
 // начальный рендер
